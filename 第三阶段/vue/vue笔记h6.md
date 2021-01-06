@@ -51,7 +51,7 @@ ejs中 <%= %>  <%- %>  <% %>  ejs模板渲染语法
   // 语法
   1，{{}}
   可以 直接 使用或者调用  实例的属性或者方法  {{}}里面的变量或者 方法调用  会自动去实例上找 ， 如果实例上没有  会报错
-  2，{{}} 中式 js环境 且最好式表达式  {{}}  写在视图中  数据渲染的， 如果调用方法，那么这个方法最好有返回值，否则不会渲染内容  （ 不能写if结构 ）
+  2，{{}} 中式 js环境 且最好是表达式  {{}}  写在视图中  数据渲染的， 如果调用方法，那么这个方法最好有返回值，否则不会渲染内容  （ 不能写if结构 ）
   3，全局方法  vue {{}}  模板 创建一个白名单  白名单中的全局方法  是可以在{{}} 中使用的
   'Infinity,undefined,NaN,isFinite,isNaN,' 
     'parseFloat,parseInt,decodeURI,decodeURIComponent,encodeURI,encodeURIComponent,' 
@@ -468,7 +468,7 @@ watch的高级用法
   兄弟
 
 ## 24、组件间通信
-+ 父-->子 通信
+###  1、父-->子 通信
   通过子组件的props属性来接受
 ```js
   const Child = {
@@ -489,7 +489,7 @@ watch的高级用法
     <child title="我是静态的值" :title2="msg"/>
 ```
 
-## props 验证
+### 2、props 验证
 ```js
   const Child = {
     props:{
@@ -527,7 +527,788 @@ watch的高级用法
   + 组件通信 ---子 --> 父
     自定义事件 形式 通信
 ```js
-  
+  // 子组件中 触发一个自定义事件  同时可以携带数据
+  this.$emit('自定义事件的名字'[,携带的数据])
+  // 监听事件 子组件的标签 监听
+  <child @自定义事件名="fn"/>
+
+  Parent
+  {
+    methods: {
+      fn (params) {
+        // params是 自定义事件触发携带的参数
+      }
+    }
+  }
 ```
 
+### 3、兄弟组件之间通信
+
+$emit 方法 是在Vue原型上 所有的组件 和 显示的实例（new Vue）都能调用这个方法
+哪个实例$emit的自定义事件 就应该由哪个实例 来监听
+监听这个自定义事件 除了 在组件标签上 @自定义事件来监听，还可以通过
+
+实例.$on('事件',)()=>{})
+原理： 事件中心总线  eventHub  eventBus
+  创建一个第三方实例
+  在 a组件中 引入这个实例 实例.$emit()触发自定义事件
+  在 b组件中 通过这个实例 实例.$on() 监听这个事件
+```js
+  // 创建 第三方实例  事件中心总线
+  const bus = new Vue（）
+  // a组件中
+  bus.$emit('自定义事件名',[,params])
+  // b组件中
+  bus.$on('自定义事件名',回调函数)
+```
+以下三种不常用
+### 4、ref 方便在vue中获取dom （获取组件的实例）
+```js
+  const child = {
+    template：`
+      <div>
+        <h3 ref="title">子组件</h3>
+        <button ref="btn">按钮</button>
+      </div>
+    `
+  }
+  // 在子组件中  通过this.$refs.xxx获取对应的dom
+  // ref绑定在组件中
+
+  // 父组件
+  <Child ref="child"/>
+  // 父组件中 获取子组件的实例 直接获取子组件的属性或者调用子组件的方法
+  this.refs.child.属性
+  this.refs.child.方法()
+```
+### 5、实例的 $parent 和 $children属性
+```
+  实例的$parent属性 返回的是当前组件的父组件实例
+  实例 $children 返回是数组 保存了当前组件中 所有的子组件的实例
+```
+### 6、provide inject 通信
+
+## 25、组件的生命周期
+
+一个组件 从开始注册到最后销毁的中间的整个过程
+每个过程：vue提供不同的钩子函数（在不同阶段 自动调用的函数）
+![vue实例生命周期图谱](https://cn.vuejs.org/images/lifecycle.png)
++ 实例 （组件） 挂载
+  beforeCreate
+  created （在实例的所有属性和方法加载完毕，以及data变成响应式（mvvm过程）触发）
+    已经可以调用实例的方法和属性 而且可以改变数据了
+  beforeMount 模板渲染之前 （模板渲染成真实dom之前）
+  mounted 模板渲染完毕
+    这里可以获取dom了
++ 数据更新
+  beforeUpdate
+    数据改变 视重新渲染之前
+  updated
+    数据改变 视图重新渲染完成 这里可以获取 更新后的dom
++ 组件销毁
+  beforeDestroy
+    销毁之前 用的较多 在此时 实例还未销毁，还能调用实例的方法
+  destroyed
+    实例已经销毁
++ 新增的两个生命周期钩子
+  activated 被keep-alive 缓存的组件 再一次激活时触发
+  deactivated 被keep-alive缓存的组件 再一次停用时触发
+
+## 26、生命周期使用场景
+```js
+  created
+    // 实例已经创建完成，实例上数据和方法 也初始化完成，且实例上的数据 已经被劫持变成响应式数据，但是还没有渲染到页面上，在这里除了不能获取dom操作之外，初始化数据的操作在这里都可以执行
+    // 可做操作： 从服务器获取一些初始化的数据，或通过ajax向服务器发送一些数据
+  mounted
+    // 组件的视图已经渲染完成，一切组件在初始化的时候需要获取dom的操作都要在这里完成，比如使用swiper/富文本/echarts/高德百度地图
+  updated
+    // 当数据改变想要获取更新后的dom
+  beforeDestory
+    // 组件销毁时 清除组件中定义的定时器 以及 销毁一些全局事件绑定
+```
+## 27、keep-alive
+  vue提供了一个组件keep-alive  用它包裹组件  组件在消失时不会销毁会一直缓存在内存中
+
+```
+  <keep-alive>
+    <child v-if="isShow" />
+  </keep-alive>
+
+  包裹组件后，这个组件不会销毁，会缓存在内存中，所以当组件，再一次显示时，所有的生命周期不会触发（更新触发），常用于组件缓存（列表页进详情，回到列表时列表状态缓存）
+
+  两个生命周期钩子会触发
+  activated   激活时触发
+  deactivated   停用时触发
+```
+## 28、插槽
+  slot 占位符，这个符号代表了当前组件内部不同的结构在使用组件时，通过组件的内容传入
+```js
+  const Child = {
+    template: `
+      <div>
+        <h1>组件</h1>
+        <slot/>
+      </div>
+    `
+  }
+  <child>
+    XXXX
+    XX
+    XXXXX
+    xX
+  </child>
+  // child组件便签内容会自动灌入slot所在的位置中
+```
+## 29、具名插槽
+每个插槽slot可以定义一个name属性，这样在使用这个组件时，就可以传入多个不同的结构块  对应不同的slot
+
+```js
+  const Child = {
+    template: `
+      <div>
+        <slot name="a" />
+        <h1>组件</h1>
+        <slot name="b" />
+      </div>
+    `
+  }
+
+  // 使用时
+  <child>
+    <div name="a">
+      这里的内容会自动灌入到name=a 的slot中
+    </div>
+    <div>
+      这里的内容会自动灌入name=b的slot中
+    </div>
+  </child>
+```
+
+## 30、切换动效
+元素在使用v-if控制显示、消失状态
+transition 组件控制元素显示、消失的动效
+```html
+  <transition name="fade">
+    <div class="box" v-if="isShow"></div>
+  </transition> 
+入场
+  .v-enter  入场一瞬间 初始状态
+  .v-enter-to  入场完成 最终状态（一般不用），元素定义的样式就是最终状态
+  .v-enter-active 入场的过程
+
+.v-enter{
+  定义初始状态的css样式  状态1 元素自己定义样式是状态2
+}
+.v-enter-active{
+  使用过渡
+  transition：all 1s
+}
+出场
+  .v-leave 出场瞬间  初始状态 一般就是元素自己的样式
+  .v-leave-to  出场完成 最终状态 定义元素最终的样式
+  .v-leave-active 出场的过程在这里定义
+
+.v-leavee-to{
+  这里定义出场最终样式 （和元素自己的样式做切换中间使用过渡）
+}
+.v-leave-active{
+  使用过渡
+  transition：all 1s
+}
+# 注意：
+  transition 是用于控制单组件的动画（只能包裹一个根组件），或者使用v-if else... 包裹多个组件（同时只会显示一个组件） 
+  如果控制多个动画包裹多个组件（列表动画） 使用transition-group组件包裹即可
+
+  使用 transition 通过条件渲染包裹多个元素时
+  默认：出场和入场动画是同时进行（不推荐）
+  此时需要给transition加一个属性 mode 值 in-out （先入场再出场 不推荐） out-in（先出场再入场  推荐）
+```
+
+## 31、动画
+  先定义动画
+  @keyframes 动画名{
+    from{}
+    to{}
+  }
+  @keyframes 动画名{
+    0%{}
+    25%{}
+    50%{}
+    75%{}
+    100%{}
+  }
+  再使用动画
+  animation-name
+            duration
+            delay
+            timing-function
+            count  （infinite）
+            direction normal reverse alternate alternate-reverse
+            fill-mode forward backward both 动画充填模式
+            play-state running paused
+  animation：name duration [delay ....]
+
+结合动画：
+  v-enter-active  入场
+  v-leave-active  出场
+
+## 32、vue中的混入minin
+可以讲多个组件中公共的属性方法计算属性 XXX 单独定义在一个混入中  这个混入可以插入任意一个组件中
+如何定义混入
+```js
+  // 定义混入 是一个对象结构和组件对象一样
+  const mixin = {
+    data () {
+      return {
+        msg: "mixin"
+      }
+    },
+    methods: {},
+    computed:{}
+  }
+  // 将混入 灌入组件中
+
+  const Home = {
+    template: ``,
+    mixin: [mixin]
+  }
+  // home组件中就可以使用mixin这个复用中的数据、方法...
+  /*
+  注意：
+      如果组件中的属性或者方法有和混入冲突的
+      以组件自己为准
+  */
+```
+
+## 33、自定义指令
+### 1、全局指令
+```js
+Vue.directive('指令名', {
+  bind(el,binding){
+    // 指令 指令第一次绑定到元素时调用 此时绑定元素已经变成真实dom，只不过还未挂载到文档
+  },
+  inserted(){
+    // 是指 指令所绑定的dom，插入到父节点时，触发  此时dom还不一定插入到文档中
+  },
+  update(){
+    // 数据更新 当前组件的vnode 更新完毕
+  },
+  componentUpdated(){
+    // 数据更新 当前组件的vnode以及后代组件vnode都更新完毕触发
+  },
+  unbind(){
+    // 指令和元素解绑时触发
+  }
+})
+// bind  update unbind
+```
+### 2、局部指令
+```js
+  // 组件
+  const Home = {
+    directives:{
+      指令名: {
+
+      }
+    }
+  }
+```
+如何使用指令  <组件 v-指令名="值">
+
+## 34、过滤器
+当我们在模板中{{}}使用一个数据时，需要过滤一下再使用就可以定义一个过滤器
+eg：
+  后端返回的金额 是数据 在模板中渲染 需要再前面加一个货币符号
+
+### 1、怎么使用过滤器
+// 基础使用
+{{ 变量 | 过滤器名 }}
+// 使用时 传参
+{{ 变量 | 过滤器名(参数) }}
+// 过滤器 串联
+{{ 变量 | 过滤器1() | 过滤器2() | 过滤器3 }}
+
+### 2、定义过滤器
+全局的
+```js
+  Vue.filter(名字，(v[,...params])=>{
+    // v就是过滤的那个变量 return什么  最终就显示什么
+    return XXX
+  })
+```
+局部的
+```js
+  const Home = {
+    filter: {
+      currency(){}
+    }
+  }
+```
+## 35、fetch 不重要看看就行
+```js
+fetch(url,{
+  method: 'post',
+  headers:{
+
+  },
+  body:{
+    // post 请求携带数据
+  }
+}).then(res=>{
+  return res.json(); //解析json格式 res.json()
+  res.text() res.blob()
+}).then(res=>{
+  // res 解析后的数据
+})
+```
+
+## 36、axios ajax请求库
+vue+axios react+axios angular+axios
+```js
+  axios.get(url,{
+    params:{}, // get 请求传的参数 参数也可以在url上一query格式传
+    headers:{},
+  }).then(res).catch(err)
+
+  // post的第二个参数 就是传的数据
+  axios.post(url,{
+    a:10,
+    b:20
+  })
+  // axios方法
+  axios({
+    url:'xxx',
+    method:'get/post',
+    params:{}, // get请求传的参数
+    data:{}, //post 请求传的参数
+    headers:{}
+  })
+
+  // 创建一个实例
+  const instance = axios.crete({
+    baseURL:'xxx', //  定义基础url 会自动加在 所有实例发的请求url前面去
+    timeout: 8000, // 请求超时时间
+    headers:{}
+  })
+  // 好处： 创建实例时，统一做一些初始配置 如统一url 超时时间  请求头xxx
+  // axios 有什么方法 实例就有什么方法
+  instance.get  instance.post  instance
+
+  // axios的默认配置
+  axios.defaults.baseURL = 'https://api.example.com';
+  axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
+  axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+  /*
+  注意：
+  统一创建实例 统一配置，或者通过axios defaults配置 二选一
+  */
+
+ // 拦截器
+ // 添加一个请求的拦截
+ axios.interceptor.request.use(function (config) {
+   // 在发送请求之前，可以做一些事情
+   /*
+    config.headers.token="xxx"
+    config.method // get/post
+    config.data 拿到post请求传的数据
+   */
+  return config; // 如果不return config 请求就发送不出去
+ }), function (error) {
+    // 请求出错的拦截
+    return Promise.reject(error);
+  });
+
+// 添加响应拦截
+axios.interceptors.response.use(function (response) {
+    // Any status code that lie within the range of 2xx cause this function to trigger
+    // response是响应的数据 
+    return response;
+  }, function (error) {
+    // Any status codes that falls outside the range of 2xx cause this function to trigger
+    // Do something with response error
+    return Promise.reject(error);
+  });
+```
+
+## 37、vue路由
+VueRouter 是Vue的一个路由插件
+让vue事件 单页面应用 SPA（single page application）整个应用程序只有一个html文件
+优点：加载速度 切换的速度 快 （单页面，只渲染一次，切换页面不重新加载）
+缺点：不利于seo（搜索引擎优化）（nuxt）
+
+## 38、vue路由基础
+```
+  vueRouter是基于vue的前端路由库（设计成了 Vue的插件）让前端实现SPA单页面应用
+  spa优点： 切换速度快 （加载速度快）
+  缺点：前端渲染（nuxt 解决seo问题）seo 搜索引擎优化 爬虫 不利于seo
+
+  <script src="vue.js">
+  后面引入vue-router
+  <script src="vue-router.js">
+
+  定义 路由组件
+    const Home = {
+      template:`
+        <div>
+          <h1>home页</h1>
+        </div>
+      `
+    }
+    const News = {
+      template:`
+        <div>
+          <h1>新闻页</h1>
+        </div>
+      `
+    }
+    const routes = { // 路由规则
+      {
+        path: '/home',
+        component: Home
+      },
+      {
+        path: '/news',
+        component: News
+      }
+    }
+    // 创建路由对象
+    const router = new VueRouter({
+      routes
+    })
+
+    const vm = new Vue({
+      el:"XXX",
+      router
+    })
+
+    在模板是上需要新增出口(占位)
+    <router-view />
+    在路由匹配到某个组件时，组件在router-view位置渲染
+
+    router-link 组件做路由调转
+    <router-link to="/home" tag="button"></router-link>
+    to定义调转path
+    tag定义渲染的标签
+
+    在匹配的touter-link中会自动加入 router-link-active高亮类 
+
+    解决 /路由组件默认显示某个组件问题
+
+    1、新增路由规则
+    如：
+    {
+      path: '/',
+      component: Home
+    }
+    问题？ 如果有home router-link 不会高亮
+    2、重定向 推荐
+    {
+      path: '/'
+      redirect: '/home' // 当地址为 /  会自动变成/home
+    }
+```
+
+## 39、动态路由
+```
+当vue-router引入时，如果是直接script src引入的话，会自动往构造函数以及原型中添加一个属性 route保存了当前路由的基础信息 所有组件就可以直接通过this.route获取当前路由基础信息
+
+定义：
+  routes = [
+    {
+      path: "/detail/:id", // 定义一个动态路由 定义了一个变量是id
+      component: Detail
+    }
+  ]
+  // 跳转
+  router-link
+          to="/detail/2"  // 此时 2 是动态路由定义的变量id的值
+  获取：
+      this.$route.params.定义变量名  获取动态路由传的参数
+
+  // path
+  {
+    path: "/a/:b/c/:d"
+  }
+  跳转路径： /a/b/c/d
+            /a//2/3/e 路径是错误的
+  结果：
+    this.$toute.params
+          {
+            b:"b",
+            d:"d"
+          }  
+```
+
+## 40、动态路由 监听 
+监听路由参数 （动态路由 传的动态的值）的变化
+```
+  watch:{
+    "$route"(to, from){ // to去哪  from从哪来
+      console.log('变化了')
+      console.log(to, from)
+    }
+  }
+```
+## 41、解决404
+```
+{
+  path: "*", *匹配任意路由 尽量将404页面 路由规则放到最后
+  component: NotFound
+}
+```
+
+## 42、嵌套路由
+```
+  一级路由中 在路由组件中还可以显示 （根据路由的变化 父级组件）显示不同子级组件
+
+  const routes = [
+    {
+      path: '/news',
+      component: News,
+      children: [ // 在父级路由规则中新增 children，在属性中定义二级路由
+        {
+          path: "/news/native", // 建议二级路由path 携带一级路由的path作为前缀
+          component: native
+        },
+        {
+          path:"/news/abroad",
+          component: Abroad
+        }
+      ]
+    }
+  ]
   
+  // 在一级路由中  对应的 组件中 新增router-view 作为二级路由 出口（占位）
+  const News = {
+    template: `
+      <div>
+        <h1>news组件</h1>
+        <router-view />
+      </div>
+    `
+  }
+  <router-view />
+```
+
+## 43、命名路由
+给每个路由规则新增name属性，相当于给每个路由起个名字
+```
+  routes = {
+    path:'/home',
+    name: '首页', // 给这个路由 新增name属性
+    component: xxx
+  }
+```
+
+## 44、命名视图 （不重要）看文档
+
+## 45、编程式导航
+```
+  声明式导航利用组件跳转路由（router-link）
+  编程式导航 js内部通过方法来控制路由跳转 当引入vue-router后 构造函数还灌入一个对象 $router  $router其实就是路由对象实例 new VueRouter()
+
+  this.$router.push()  // 跳转路由的 参数同  router-link的同属性 栈 
+    // 跳转路由  并往历史记录中添加一条新的记录
+  this.$router.replace()  // 跳转路由 参数通router-link的to属性
+    // 跳转路由  不添加新纪录 而是覆盖当前的记录
+  this.$router.go(n)
+                  0  // 刷新
+                  -1 // 回退一步
+                  1  // 前进一步
+```
+
+## 46、别名
+```
+  '重定向'的意思是，当用户访问/a 时， URl将会被替换成/b,然后匹配路由为/b ，
+
+  /a 的别名是/b,意味着，当用户访问/b 时URl会保持为/b,但是路由匹配则为 /a ，就像用户访问 /a 一样
+
+  上面对应的路由配置为：
+    const router = new VueRouter({
+      routes: [
+        {
+          path: '/a',
+          component: A,
+          alias: '/b'
+        }
+      ]
+    })
+
+```
+
+## 47、路由组件参数
++ 动态路由传参
+```
+  {
+    path:'/news/:id'
+    componemt: News
+  }
+  // 跳转时
+  <router-link to="/news/2">
+  // 获取
+  this.$route.params.id
+  优点：
+    刷新后 数据不丢失
+```
++ params传参
+不管是router-link的to属性 还是push方法的参数，他两是一样的
+前提：
+  1，路由必须加name属性
+  2，参数（router-link to的参数 push参数）必须是对象
+可写的值是
+  1，直接写字符串， 这种情况，必须写path router-link to="/news"  this.$router.push("/news)
+  2,参数可以是对象 router-link :to="{name:'home'}" 可以以名字跳转
+```
+  params传参
+  1，声明式导航
+  <router-link :to="{name:'news',params:{a:10,b:20}}">
+  2,编程式导航
+  this.$router.push({name:"/news,params:{a:1,b:2}"})
+
+  获取：
+  this.$route.params.xxx
+
+  注意：
+    params传参，必须结合命名路由一起使用 跳转时，必须要通过name跳转，否则传不过去
+    params传参的优点：隐式传参  地址栏看不见
+    缺点：刷新后数据丢失
+```
++ query传参 
+```
+  router-link
+          :to="{path:'/news',query:{a:1,b:2}}"
+
+  this.$router.push({
+    path: '/news',
+    query:{
+      a:1,
+      b:2
+    }
+  })
+  获取
+    this.$route.query.xxx
+  注意：
+    优点：刷新后 数据不丢失
+    缺点：参数放在地址栏上
+    query最好结合path  尽量不结合name
+```
+
+## 48、路由模式
+
+路由模式：
+  默认是hash模式 ，通过url hash值得变化 来控制路由的跳转
+  缺点：
+    丑  url#/a   #/b
+  优点：
+    不会改变 html 文件的路径指向
+  
+  history模式
+    不会往url上加 # 
+    /a   /b   /c
+    优点：好看
+    缺点：改变html文件的指向关系
+
+hash路由原理：面试时问一下
+  改变url后面的hash值，通过window的hashchange事件来监听 hash变化，根据定义路由规则，来显示对应的组件
+history 模式原理
+  history对象 新增两个方法 pushState（） replaceState（）这两个方法来改变url地址，在这个方法中匹配路由规则
+
+## 49、导航守卫
+导航守卫、导航钩子函数
+监听甚至 拦截 路由变化 
+场景： 例如登录鉴权等
+
+全局守卫 （拦截所有的路由）
+// 全局前置 守卫
+router.beforeEach((to,from.next)=>{
+  // to  目标路由
+  // from 从哪来路由
+  // next  拦截器 不调用next() 路由无法进入，next参数同router-link to属性的值，重定向地址
+  next()
+})
+路由独享的（定义在路由规则中 只拦截这个路由）
+  组件内部
++ 全局
+全局前置守卫
+
+全局后置守卫
+
++ 路由独享
+```
+{
+  path: "/home"
+  component:Home,
+  beforeEnter(to,from,next){
+    // 只会拦截/home这个路由
+  }
+}
+```
++ 组件内部
+```
+const Foo = {
+  template: `...`
+  beforeRouterEnter (to,from,next) {
+    // 在渲染改组件的对应路由被 config 前调用
+    // 不！能！ 获取组件实例 `this`
+    // 因为当守卫执行前，组件实例还没有被创建
+  },
+  beforeRouterUpdate (to, from, next) {
+    // 在当前路由改变，但是该组件被复用是调用
+    // 举例来说，对于一个带有动态参数的路径 /foo/:id,在/foo/1和/foo/2之间跳转的时候，
+    // 由于会渲染同样的foo组件，因此组件实例会被复用。而这个钩子就会在这个情况下被调用。
+    // 可以访问组件实例   `this`
+  },
+  beforeRouterLeave (to, from, next) {
+    // 导航离开该组件的对应路由时调用
+    // 可以访问组件实例  `this`
+  }
+}
+```
+## 50、滚动行为
+```js
+const router = new VueRouter({
+  mode:"hash"
+  routes:[],
+  scrillBehavior (to, from, savedPosition) {
+    if(savedPosition){
+      return savedPosition
+    }else{
+      return {
+        x:0,
+        y:0
+      }
+    }
+    // return 期望滚动到哪个位置
+    /*
+      return 的位置
+      应该是一个对象
+      {
+        x:0,
+        y:0
+      }
+      savedPosition参数 保存每一次离开这个路由时的滚动条位置
+      对象{
+        x:xxx,
+        y:xxx
+      }
+    */
+  }
+})
+```
+
+## 51、vueCli  vue脚手架
+基于webpack 构建一个脚手架
+安装
+```js
+  npm install -g @vue/cli
+  #OR
+  yarn global add @vue/cli
+
+  vue ---version  // 验证是否安装成功
+```
+
+启动项目
+命令行启动项目
+```js
+vue create 目录名  // 注意 目录不能出现大写字母
+```
