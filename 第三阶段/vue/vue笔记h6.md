@@ -93,16 +93,21 @@ v-on:事件  vue中  定义 元素的事件 事件函数  会与 vue实例上的
     如果 通过<button @click="fn($event)">按钮</button> 方式绑定  可以在调用时 传入 预定义好的  变量$event   就是事件对象 
 ```
 
-## 7、vue事件修饰符
+## 7、vue事件修饰符和表单修饰符
 修饰 绑定事件的
 @事件.修饰符
 v-on:事件.修饰符
 ```js
+事件修饰符
 .stop  //阻止事件冒泡
 .prevent //阻止默认事件
 .capture  //捕获阶段就提前触发
 .self   //当前元素所绑定的事件  只能由自己触发
 .once  // 只触发一次
+表单修饰符
+.lazy   v-model 会变成change事件驱动
+.trim   自动去除开头结尾空格
+.number 将输入的值自动换成number类型，过程同parseFloat  注意如果这个值无法被parseFloat() 解析  则会返回原始的值
 ```
 
 ## 8、条件渲染
@@ -523,7 +528,7 @@ watch的高级用法
     UI 组件
       接受数据  渲染数据， 收集数据给容器组件
     状态提升
-  
+
   + 组件通信 ---子 --> 父
     自定义事件 形式 通信
 ```js
@@ -593,26 +598,30 @@ $emit 方法 是在Vue原型上 所有的组件 和 显示的实例（new Vue）
 一个组件 从开始注册到最后销毁的中间的整个过程
 每个过程：vue提供不同的钩子函数（在不同阶段 自动调用的函数）
 ![vue实例生命周期图谱](https://cn.vuejs.org/images/lifecycle.png)
-+ 实例 （组件） 挂载
-  beforeCreate
-  created （在实例的所有属性和方法加载完毕，以及data变成响应式（mvvm过程）触发）
-    已经可以调用实例的方法和属性 而且可以改变数据了
-  beforeMount 模板渲染之前 （模板渲染成真实dom之前）
-  mounted 模板渲染完毕
-    这里可以获取dom了
-+ 数据更新
-  beforeUpdate
-    数据改变 视重新渲染之前
-  updated
-    数据改变 视图重新渲染完成 这里可以获取 更新后的dom
-+ 组件销毁
-  beforeDestroy
-    销毁之前 用的较多 在此时 实例还未销毁，还能调用实例的方法
-  destroyed
-    实例已经销毁
-+ 新增的两个生命周期钩子
-  activated 被keep-alive 缓存的组件 再一次激活时触发
-  deactivated 被keep-alive缓存的组件 再一次停用时触发
+
+```html
+组件、实例生命周期 是指一个组件从创建到销毁的整个过程，vue提供了 不同时期的生命周期的钩子函数，来监控不同的生命周期过程，在这些钩子函数中，可以做不同的操作
+beforeCreate 实例初始化之前
+created 实例已经初始化  在这里可以使用data和methods的方法了，一般在这个生命周期内，调用获取数据的ajax函数
+beforeMount 视图渲染之前
+mounted 视图已经渲染，在这里获取获取渲染后dom，可以做一些 特效（绑定一些全局的事件..）
+beforeUpdate 数据更新 视图重新渲染之前
+updated 数据更新 视图 渲染之后 在这里可以获取 更新后最新的dom
+activated  组件激活
+deactivated 组件 停止使用
+beforeDestroy  实例销毁之前  在这里可以清楚定时器 销毁 全局事件如滚动
+destroyed 实例销毁之后
+errorCaptured  捕获错误钩子
+
+注意：
+activated
+deactivated
+当一个组件 通过 keepalive组件缓存 之后，所有的生命周期都不会重新调用，原因组件被缓存了没有真正的销毁。
+activated 组件再一次使用时，会调用 让缓存的组件 局部刷新（调用局部刷新 数据的 请求函数）
+deactivated 组件 停止使用时会调用 （清除定时器 销毁全局的事件）
+```
+
+
 
 ## 26、生命周期使用场景
 ```js
@@ -1201,7 +1210,7 @@ VueRouter 是Vue的一个路由插件
     丑  url#/a   #/b
   优点：
     不会改变 html 文件的路径指向
-  
+
   history模式
     不会往url上加 # 
     /a   /b   /c
@@ -1219,19 +1228,26 @@ history 模式原理
 场景： 例如登录鉴权等
 
 全局守卫 （拦截所有的路由）
-// 全局前置 守卫
+全局前置守卫
+
+```jsx
 router.beforeEach((to,from.next)=>{
   // to  目标路由
   // from 从哪来路由
   // next  拦截器 不调用next() 路由无法进入，next参数同router-link to属性的值，重定向地址
   next()
 })
-路由独享的（定义在路由规则中 只拦截这个路由）
-  组件内部
-+ 全局
-全局前置守卫
+```
 
 全局后置守卫
+
+```jsx
+router.afterEach((to, from)=>{
+
+})
+```
+
+路由独享的（定义在路由规则中 只拦截这个路由）
 
 + 路由独享
 ```
@@ -1243,7 +1259,7 @@ router.beforeEach((to,from.next)=>{
   }
 }
 ```
-+ 组件内部
++ 组件内部  ( 只针对这个组件 )
 ```
 const Foo = {
   template: `...`

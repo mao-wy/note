@@ -914,7 +914,7 @@ const people = [{
 
 React的高效依赖于所谓的 Virtual-DOM，尽量不碰 DOM。对于列表元素来说会有一个问题：元素可能会在一个列表中改变位置。要实现这个操作，只需要交换一下 DOM 位置就行了，但是React并不知道其实我们只是改变了元素的位置，所以它会重新渲染后面两个元素（再执行 Virtual-DOM ），这样会大大增加 DOM 操作。但如果给每个元素加上唯一的标识，React 就可以知道这两个元素只是交换了位置，这个标识就是```key```，这个 `key` 必须是每个元素唯一的标识
 
-- dangerouslySetHTML
+- dangerouslySetInnerHTML
 
 对于富文本创建的内容，后台拿到的数据是这样的：
 
@@ -1056,7 +1056,7 @@ React中组件也有生命周期，也就是说也有很多钩子函数供我们
 
 ## 卸载阶段
 
-1. componentWillUnmount()
+1. componentWillUnmount()  
 
 ## 错误处理
 
@@ -1083,7 +1083,7 @@ constructor(props) {
 }
 ```
 
-##### 2.static getDerivedStateFromProps(nextProps, prevState)
+##### 2.<font color="red">static getDerivedStateFromProps(nextProps, prevState)</font>
 
 `getDerivedStateFromProps` 是react16.3之后新增，在组件实例化后，和接受新的`props`后被调用。他必须返回一个对象来更新状态，或者返回null表示新的props不需要任何state的更新。
 
@@ -1113,7 +1113,7 @@ render()方法是必需的。当他被调用时，他将计算`this.props`和`th
 `render()`方法必须是一个纯函数，他不应该改变`state`，也不能直接和浏览器进行交互，应该将事件放在其他生命周期函数中。 
 如果`shouldComponentUpdate()`返回`false`，`render()`不会被调用。
 
-##### 5. componentDidMount
+##### <font color="red">5. componentDidMount</font>
 
 `componentDidMount`在组件被装配后立即调用。初始化使得DOM节点应该进行到这里。
 
@@ -1139,6 +1139,21 @@ React不会在组件初始化props时调用这个方法。调用`this.setState`�
 
 > 官方并不建议在`shouldComponentUpdate()`中进行深度查询或使用`JSON.stringify()`，他效率非常低，并且损伤性能。
 
+```jsx
+// shouldComponentUpdate 手动控制刷新
+{
+  render(){
+
+  }
+  shouldComponentUpdate(nextProps,nextState){
+    return nextProps.xx !== this.props.xxx
+  }
+}
+// 注意 无法做 深层次比较
+```
+
+
+
 ##### 8.UNSAFE_componentWillUpdate(nextProps, nextState)
 
 在渲染新的`state`或`props`时，`UNSAFE_componentWillUpdate`会被调用，将此作为在更新发生之前进行准备的机会。这个方法不会在初始化时被调用。
@@ -1149,13 +1164,13 @@ React不会在组件初始化props时调用这个方法。调用`this.setState`�
 
 在react `render()`后的输出被渲染到DOM之前被调用。它使您的组件能够在它们被潜在更改之前捕获当前值（如滚动位置）。这个生命周期返回的任何值都将作为参数传递给componentDidUpdate（）。
 
-##### 10.componentDidUpdate(prevProps, prevState, snapshot)
+##### <font color="red">10.componentDidUpdate(prevProps, prevState, snapshot)</font>
 
 在更新发生后立即调用`componentDidUpdate()`。此方法不用于初始渲染。当组件更新时，将此作为一个机会来操作DOM。只要您将当前的props与以前的props进行比较（例如，如果props没有改变，则可能不需要网络请求），这也是做网络请求的好地方。
 
 如果组件实现`getSnapshotBeforeUpdate()`生命周期，则它返回的值将作为第三个“快照”参数传递给`componentDidUpdate()`。否则，这个参数是`undefined`。
 
-##### 11.componentWillUnmount()
+##### <font color="red">11.componentWillUnmount()</font>
 
 在组件被卸载并销毁之前立即被调用。在此方法中执行任何必要的清理，例如使定时器无效，取消网络请求或清理在`componentDidMount`中创建的任何监听。
 
@@ -1167,7 +1182,7 @@ React不会在组件初始化props时调用这个方法。调用`this.setState`�
 
 错误边界只会捕获树中下面组件中的错误。错误边界本身不能捕获错误。
 
-## PureComponent
+## PureComponent 
 
 `PureComponnet`里如果接收到的新属性或者是更改后的状态和原属性、原状态相同的话，就不会去重新render了
 在里面也可以使用`shouldComponentUpdate`，而且。是否重新渲染以`shouldComponentUpdate`的返回值为最终的决定因素。
@@ -1177,6 +1192,30 @@ import React, { PureComponent } from 'react'
 
 class YourComponent extends PureComponent {
   ……
+}
+```
+
+##  组件性能优化
+
+react 只要父组件 更新了，默认所有的后代组件都会更新
+
+```
+// shouldComponentUpdate 手动控制刷新
+{
+  render(){
+
+  }
+  shouldComponentUpdate(nextProps,nextState){
+    return nextProps.xx !== this.props.xxx
+  }
+}
+// 注意 无法做 深层次比较
+
+// 使用 PureComponent
+// 对props和state做浅层比较
+import React,{PureComponent} from 'react'
+class xx extends PureComponent{
+
 }
 ```
 
