@@ -92,7 +92,7 @@ vm.$mount(document.querySelector("#app")) //外部挂载vue
     a?'aa':'xxx'
 ```
 
-928419197
+
 
 ## 指令
 

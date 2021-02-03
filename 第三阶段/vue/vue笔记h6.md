@@ -1328,3 +1328,382 @@ const router = new VueRouter({
 ```js
 vue create 目录名  // 注意 目录不能出现大写字母
 ```
+
+可视化网页 启动
+
+## 52、项目目录结构
+
+```js
+publuc  // 服务器静态资源的 根目录 这里的静态资源可以通过绝对路径访问
+src		// 源码目录
+	assets  // 放置静态资源的目录
+    		// assets中的静态资源  webpack会处理（优化），路径写相对路径 public写绝对路径
+    components  // 放置公共的子组件
+    router	// 路由配置
+    	index.js
+	views	// 放路由组的目录
+    App.vue	// 根组件
+	main.js // webpack的入口文件
+babel.config.js	// babel的配置文件  es6转es5 插件
+package.json	// 项目配置文件
+```
+
+
+
+## 53、webpack运行过程
+
+webpack搭建很多环境 以及创建服务器入口文件 main.js会自动挂载到index.js  服务器自动打开index.html，main.js中引入的资源会自动挂到index.html
+
+webpack可以将任意类型资源当做模块依赖，只要在main.js中引入即可，在main.js引入了，就相当于在index.html引入了
+
+
+
+## 54、ES6模块化
+
+webpack搭建了es6开发环境webpack有loader解析器（不同的loader，用于解析不同的文件在js中的支持）有了这些loader 就可以在js中引入 任意类型的资源（如 js css img 字体图标，以及vue的单文件组件） webpack构建的环境中 可以使用 es6模块化或者 nodejs模块化（引入任意资源）
+
+```js
+1、如果一个文件 没有导出任何接口（如js未导出接口，或者其他类型的文件如css）
+这种文件可以直接引入
+引入语法
+	import '路径'  （require）
+2, 一个文件 导出多个接口（js）
+  方法1
+    导出
+    a.js
+      export const a = 10;    
+      export let b = {
+        a: 10,
+        b: 30
+      } 
+      export const fn = () => {
+        console.log(111)
+      }
+      或者
+      const a = 10
+      const b = 20
+      const c = () => {
+        console.log(111)
+      }
+
+      export {
+        a,
+        b,
+        c
+      }
+    引入接口
+    1,按需引入
+    import { a, b } from './a.js'
+    2,全部引入 
+    import * as 别名 from '路径'  
+  3， 一个文件 只导出一个接口（只能）
+  export default 值
+  
+  引入
+  import 变量名 from '路径'
+
+  #注意：
+    模块化  每一个模块的 文件 都有一个单独的作用域
+```
+
+
+
+## 55、Vue单文件组件
+
+以.vue结尾文件webpack会使用vue-loader将vue结尾文件，自动解析成一个vue组件对象
+
+```js
+<template>
+    
+</template>
+<script>
+export default {
+  data () {return {}},
+  methods: {},
+  computed: {},
+  watch: {},
+  components: {},
+  filters: {}
+}
+</script>
+<style lang="scss" scoped>
+/* 
+lang指定css预处理器
+scoped 作用域 当前 样式 只针对 当前组件的template中的 组件有效不会影响其他组件
+/deep/ 深度选择器  穿透 scoped的限制
+在使用 UI组件库 如果需要 自定义 ui组件样式时，需要 加 /deep/
+*/
+</style>
+```
+
+
+
+## 56、路由懒加载
+
+```js
+// es6 引入模块 import 必须是 顶部引入 预加载
+// import()
+
+{
+    path:'/home',
+    component: () => import('路径')
+}
+```
+
+
+
+## 57、自定义脚手架配置
+
+根目录下 新增vue.config.js 配置好之后 重启代码
+
+```js
+const path = require('path')
+module.exports = {
+  devServer: { // 配置服务器
+    port: 9527,
+    open: true
+  },
+  lintOnSave: false, // 配置 eslint 格式化
+  chainWebpack: config => { // 配置路径别名
+    config.resolve.alias
+      .set('@', path.join(__dirname, 'src'))
+      .set('assets', path.join(__dirname, 'src/assets'))
+      .set('components', path.join(__dirname, 'src/components'))
+      .set('views', path.join(__dirname, 'src/views'))
+      .set('utils', path.join(__dirname, 'src/utils'))
+      .set('api', path.join(__dirname, 'src/api'))
+      .set('mixins', path.join(__dirname, 'src/mixins'))
+  }
+}
+```
+
+
+
+## 58、VUEX
+
+VueX是一个专为Vue.js应用程序开发的状态管理模式。它采用集中式储存管理应用的所有组件的状态，并以响应的规则保证状态以一种<font color="red">可预测的方式</font>发生变化。
+
+
+
+程序中的公共的数据一定是可预测  可追踪的（容器组件  UI组件  状态提升）
+
+
+
+VueX和vue-router一样是vue的插件 使用插件Vue.(插件)  // 往Vue(构造函数上) 增加一下些属性或方法...
+
+```js
+// 下载
+npm i vuex -S
+// src新建store
+// store
+	index.js
+import Vue from 'vue'
+import Vuex from 'vuex'
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+  state: {
+    num: 10
+  },
+  mutations: {
+    addNum (state, n) {
+      state.num += n
+    },
+    reduceNum (state, n) {
+      state.num -= n
+    }
+  }
+})
+export default store
+// main.js中
+import store from './store'
+
+new Vue({
+  store
+})
+// 在组件中 获取 state
+this.$store.state.xx
+// 组件中提交mutation
+this.$store.commit('mutation名字'[,传递的参数])
+```
+
+
+
+##  59、vuex中的actions
+
+action 是方法 不能直接 修改 vuex中的state 而是 提交提个mutation 来修改 action内部可以包含异步操作 使用场景： 一个 公共数据 数据来源 需要 请求一个接口（发送ajax） 应该将 请求在action中请求，得到数据后，触发一个mutation 赋值 给state
+
+```js
+// 定义actions
+{
+  state: {
+    num: 10
+  },
+  mutations: {
+    setNum (state, n) {
+      state.num = n
+    }
+  },
+  actions: {
+    getNum (context) { // context是 store这个对象
+      fetchNum().then(res => { // 封装的ajax请求函数
+        if (res.data.code === 200) {
+          context.commit('setNum', res.data.data)
+        }
+      })  
+    }
+  }
+}
+```
+
+
+
+## 60、vuex提供的助手函数
+
+mapState方便组件获取state
+
+mapMutations 方便组件提交 mutations
+
+mapActions 方便组件触发action
+
+```js
+import { mapState, mapMutations, mapActions } from 'vuex'
+{
+    methods:{
+        ...mapMutations(['addNum', 'reduceNum']),
+        ...action(['addNumAsync'])
+    },
+    computed:{
+        ...mapState(['num']) // 新增一个计算属性num ，依赖 store中state的num
+    }
+}
+this.num // 获取 store中的state中的num
+this.addNum(参数) // 提交 addNum这个mutation
+this.addNumAsync(参数) // 触发 addNumAsync 这个action
+```
+
+
+
+## 61、 getters
+
+相当于 vuex中的计算属性
+
+```js
+{
+  state:{
+    num: 10
+  },
+  getters:{
+    doubleNum (state) {
+      return state.num*2
+    }
+  }
+}
+
+// 组件中获取
+// 1直接获取
+this.$store.getters.doubleNum
+// 2 助手函数获取
+import { mapGetters } from 'vuex'
+
+{
+  computed:{
+    ...mapGetters(['doubleNum'])
+  }
+}
+```
+
+
+
+## 62、 vuex 模块化 在vuex state上 增加一些模块
+
+```js
+const modulea = {
+  state:() =>{
+    num: 10
+  },
+  mutations: {
+    addNum (state, n) {
+      state.num += n
+    }
+  }
+}
+const moduleb = {
+  state:() =>{
+    num: 10
+  },
+  mutations: {
+    addNum (state, n) {
+      state.num += n
+    }
+  }
+}
+
+const store = new Vuex.Store({
+  modules: {
+    modulea,
+    moduleb
+  }
+})
+// 组件中获取  state
+// 直接获取
+this.$store.state.modulea.num
+// 助手函数获取
+computed:{
+  ...mapState({
+    num: state => state.modulea.num,
+    numb: state => state.moduleb.num
+  })
+}
+
+//  问题 模块化之后 只是将state 分了模块 mutation、actions并没有
+this.$store.commit('mutation')
+// 会将所有的模块中同名mutation都触发
+```
+
+##  63、模块命名空间
+
+增加命名空间后 mutation action 就有了作用域
+
+```js
+const modulea = {
+  namespaced: true, // 增加命名空间
+  state: {
+    num: 10
+  },
+  mutations: {
+    addNum (state, n) {
+      state.num += n
+    }
+  },
+  actons
+}
+// 组件中调用mutation
+this.$store.commit('modulea/addNum'[,参数])
+// 助手函数
+{
+  ...mapMutations(['modulea/addNum'])
+}
+this['modulea/addNum']([参数])
+{
+  ...mapMutations('modulea', ['addNum'])
+                    // 模块名  // 这个模块下的哪个mutation
+}
+this.addNum([params])
+```
+
+
+
+附加： 多次复用mutations中的方法时、防止方法名写错 -解决方案
+
+```js
+在store/  中 新增types.js
+export default const ADDNUM = 'addNum'
+
+在store/  index中引入
+import { ADDNUM } from './types'
+使用时注意：将方法名变为变量
+
+[ADDNUM]
+```
+
