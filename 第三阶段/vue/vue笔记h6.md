@@ -14,7 +14,7 @@ M -> V    VM
 
 核心库  体积很小  （ 没有把所有的功能都  挂载核心库上 ）
 
-通过插件的形式将插件所携带的功能挂载在Vue上
+通过插件的形式将插件所携带的功能挂载还Vue上
 
 + 声明式开发
 
@@ -26,7 +26,7 @@ M -> V    VM
   //创建一个Vue实例  就是vm
   const vm = new Vue({
     el:"#app"  // element缩写  挂载实例  #app元素  内部就可以使用vue代码了
-    data:{ //data属性  是  放组件的数据的
+    data:{ //data属性  是  放组件的数据的＆
       msg: 'hello Vue'
     },
     methods:{ //  存放当前实例的  方法
