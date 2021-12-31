@@ -1,6 +1,10 @@
 特别说明：在开始这一切之前，请开发移动界面的工程师们在头部加上下面这条meta:
 
+```html
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+```
+
+
 
 简单事情简单做-宽度自适应所谓宽度自适应严格来说是一种PC端的自适应布局方式在移动端的延伸。在处理PC端的前端界面时候需要用到全屏布局时采用的就是此种布局方式。它的实现方式也比较简单，将外层容器元素按照百分比铺满地方式，里面的子元素固定或者左右浮动。
 
@@ -31,21 +35,25 @@ div {font-size: 1rem;height: 2rem;width: 3rem;border: .1rem solid #000;}
  html {font-size: 100px;}
  那么以此为基准，可以计算出一个比例值6.4。我们可以得知其他手机分辨率的设备下根元素字体大小:
 
-var deviceWidth = window.documentElement.clientWidth;document.documentElement.style.fontSize = (deviceWidth / 6.4) + 'px';
+```
+var deviceWidth = window.documentElement.clientWidth;
+document.documentElement.style.fontSize = (deviceWidth / 6.4) + 'px';
+```
 
 在head中，我们将以上代码加入，动态地改变根节点的font-size值，得到如下结果:![浅谈Web自适应(三种方法)
 
 ([http://cdn.attach.qdfuns.com/notes/pics/201612/02/163942hfeyaarfyzz7zfzh.jpg](https://link.jianshu.com?t=http://cdn.attach.qdfuns.com/notes/pics/201612/02/163942hfeyaarfyzz7zfzh.jpg))接下来我们可以根据根元素的字体大小用rem设置各种属性的相对值。当然，如果是移动设备，屏幕会有一个上下限制，我们可以控制分辨率在某个范围内，超过了该范围，我们就不再增加根元素的字体大小了:
 
 ```js
-var deviceWidth = document.documentElement.clientWidth > 1300 ? 1300 : document.documentElement.clientWidth;document.documentElement.style.fontSize = (deviceWidth / 6.4) + 'px';
+var deviceWidth = document.documentElement.clientWidth > 1300 ?1300:document.documentElement.clientWidth;
+document.documentElement.style.fontSize = (deviceWidth / 6.4) + 'px';
 ```
 
 一般的情况下，你是不需要考虑屏幕动态地拉伸和收缩。当然，假如用户开启了转屏设置，在网页加载之后改变了屏幕的宽度，那么我们就要考虑这个问题了。解决此问题也很简单，监听屏幕的变化就可以做到动态切换元素样式:
 
 ```js
 window.onresize = function(){
-    var deviceWidth = document.documentElement.clientWidth > 1300 ? 1300 : document.documentElement.clientWidth;
+    var deviceWidth = document.documentElement.clientWidth > 1300 ?1300:document.documentElement.clientWidth;
     document.documentElement.style.fontSize = (deviceWidth / 6.4) + 'px';};
 }
 ```
@@ -64,7 +72,10 @@ window.onresize = _.debounce(function() {
 顺带解决高保真标注与实际开发值比例问题如果你们设计稿标准是iphone5，那么拿到设计稿的时候一定会发现，完全不能按照高保真上的标注来写css，而是将各个值取半，这是因为移动设备分辨率不一样。设计师们是在真实的iphone5机器上做的标注，而iphone5系列的分辨率是640，实际上我们在开发只需要按照320的标准来。
  为了节省时间，不至于每次都需要将标注取半，我们可以将整个网页缩放比例，模拟提高分辨率。这个做法很简单，为不同的设备设置不同的meta即可:
 
-var scale = 1 / devicePixelRatio;document.querySelector('meta[name="viewport"]').setAttribute('content', 'initial-scale=' + scale + ', maximum-scale=' + scale + ', minimum-scale=' + scale + ', user-scalable=no');
+```
+var scale = 1 / devicePixelRatio;
+document.querySelector('meta[name="viewport"]').setAttribute('content', 'initial-scale=' + scale + ', maximum-scale=' + scale + ', minimum-scale=' + scale + ', user-scalable=no');
+```
 
 这样设置同样可以解决在安卓机器下1px像素看起来过粗的问题，因为在像素为1px的安卓下机器下，边框的1px被压缩成了0.5px了。总之是一劳永逸！淘宝和网易新闻的手机web端就是采用以上这种方式，自适应各种设备屏幕的，大家有兴趣可以去参考参考。下面是完整的代码:html 代码
 
@@ -108,17 +119,46 @@ div {
 ```
 
 让元素飞起来-媒体查询运用css新属性media query 特性也可以实现我们上说到过的布局样式。为尺寸设置根元素字体大小:
- @media screen and (device-width: 640px) {       html {        font-size: 100px;      }    }@media screen and (device-width: 750px) {       html {        font-size: 117.188px;      }    }@media screen and (device-width: 1240px) {       html {        font-size: 194.063px;      }    }
+
+```html
+ @media screen and (device-width: 640px) {
+	html {
+		font-size: 100px;
+	}    
+}
+@media screen and (device-width: 750px) {
+		html {
+			font-size: 117.188px;      
+		}    
+}
+@media screen and (device-width: 1240px) {
+		html {
+			font-size: 194.063px;      
+		}
+}
+```
+
+
+
+
  这种方式也是可行的，缺点是灵活性不高，取每个设备的精确值需要自己去计算，所以只能取范围值。考虑设备屏幕众多，分辨率也参差不齐，把每一种机型的css代码写出来是不太可能的。
  但是它也有优点，就是无需监听浏览器的窗口变化，它会跟随屏幕动态变化。媒体查询的用法当然不仅仅像在此处这么简单，相对于第二种自适应来说有很多地方是前者所远远不及的。最明显的就是它可以根据不同设备显示不同的布局样式！
 
-请注意，这里已经不是改变字体和高度那么简单了，它直接改变的是布局样式！@media screen and (min-width: 320px) and (max-width: 650px) {   .class {    float: left;  }}
- @media screen and (min-width: 650px) and (max-width: 980px) {   .class {    float: right;  }}
- @media screen and (min-width: 980px)  and (max-width: 1240px) {   .class {    float: clear;  }}
+请注意，这里已经不是改变字体和高度那么简单了，它直接改变的是布局样式！
+
+```css
+@media screen and (min-width: 320px) and (max-width: 650px) {   .class {    float: left;  }}
+@media screen and (min-width: 650px) and (max-width: 980px) {   .class {    float: right;  }}
+@media screen and (min-width: 980px)  and (max-width: 1240px) {   .class {    float: clear;  }}
+```
+
+
 
 此种自适应布局一般常用在兼容PC和手机设备，由于屏幕跨度很大，界面的元素以及远远不是改改大小所能满足的。这时候需要重新设计整界面的布局和排版了:如果屏幕宽度大于1300像素![浅谈Web自适应(三种方法)]
 
-([http://cdn.attach.qdfuns.com/notes/pics/201612/02/163942oave3gugrdgyvx3z.jpg](https://link.jianshu.com?t=http://cdn.attach.qdfuns.com/notes/pics/201612/02/163942oave3gugrdgyvx3z.jpg))如果屏幕宽度在600像素到1300像素之间，则6张图片分成两行。
+([http://cdn.attach.qdfuns.com/notes/pics/201612/02/163942oave3gugrdgyvx3z.jpg](https://link.jianshu.com?t=http://cdn.attach.qdfuns.com/notes/pics/201612/02/163942oave3gugrdgyvx3z.jpg))
+
+如果屏幕宽度在600像素到1300像素之间，则6张图片分成两行。
 
 ![浅谈Web自适应(三种方法)](http://cdn.attach.qdfuns.com/notes/pics/201612/02/163943f5j24avvw5ktkwk2.jpg)
 
