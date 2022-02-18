@@ -1,3 +1,5 @@
+### 打开摄像头video播放canvas取帧
+
 ```
 <template>
     <div class="Tracker">
