@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>级联控件</title>
+    <link rel="stylesheet" href="./ZdCascader.css" type="text/css">
+</head>
+
+<body>   
+    <div>
+		<h3>请点击下方输入框选择</h3>
+        <input type="text" id="test"/>
+    </div>
+    <script src="https://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+    <script src="./ZdCascader.js"></script>
+    <script>
+        var _data = [{
+            value: 'shanghai',
+            label: '上海',
+            children: [{
+                value: 'shanghaishi',
+                label: '上海市',
+                children: [{
+                    value: 'baoshan1',
+                    label: '宝山区saa发送飞洒发送'
+                }, {
+                    value: 'fengxian1',
+                    label: '奉贤区'
+                }, {
+                    value: 'putuo1',
+                    label: '普陀区'
+                }, {
+                    value: 'hongkou1',
+                    label: '虹口区'
+                }]
+            }]
+        }, {
+            value: 'hunan',
+            label: '湖南省',
+            children: [{
+                value: 'shaoyang',
+                label: '邵阳市',
+                children: [{
+                    value: 'baoshan2',
+                    label: '宝山区'
+                }, {
+                    value: 'fengxian2',
+                    label: '奉贤区'
+                }, {
+                    value: 'putuo2',
+                    label: '普陀区'
+                }, {
+                    value: 'hongkou2',
+                    label: '虹口区'
+                }]
+            }, {
+                value: 'hengyang',
+                label: '衡阳市',
+                children: [{
+                    value: 'baoshan3',
+                    label: '宝山区'
+                }, {
+                    value: 'putuo3',
+                    label: '普陀区'
+                }, {
+                    value: 'hongkou3',
+                    label: '虹口区'
+                }]
+            }]
+        }, {
+            value: 'sichuan',
+            label: '四川省',
+            children: [{
+                value: 'leshanshi',
+                label: '乐山市',
+                children: [{
+                    value: 'baoshan4',
+                    label: '宝山区'
+                }, {
+                    value: 'fengxian4',
+                    label: '奉贤区'
+                }, {
+                    value: 'putuo4',
+                    label: '普陀区'
+                }, {
+                    value: 'hongkou4',
+                    label: '虹口区'
+                }]
+            }]
+        }, {
+            value: 'beijing',
+            label: '北京'
+        }];
+        $(function(){
+            $('#test').zdCascader({
+                data:_data
+            });
+        })
+    </script>   
+</body>
+
+</html>
