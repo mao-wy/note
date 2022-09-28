@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JS惯性滚动，加速滚动</title>
+<style>
+*{ margin:100; padding:0; list-style:none; font-family: "微软雅黑" }
+#div_bar{width:200px;   background:limegreen; height:40px;position:absolute;left:0;top:0;}
+.box{width:10px;height:10px;background:green; position:absolute;left:0;top:0;}
+ 
+#div_msg{
+	margin-left:210px;
+	}
+	
+</style>
+ 
+<script>
+ 
+ 
+//滚动事件数组
+let g_arr_wheel = [];
+ 
+window.onmousewheel = function(){
+ 
+	var oDiv=document.getElementById('div_bar');
+ 	
+	let t_dir = event.wheelDeltaY > 0 ? 1 : -1; 
+		
+	let t_wheel_num = g_arr_wheel.length;
+	let t_velocity = 0;
+	
+	//首先删除间隔1000ms以上的 	
+	if(t_wheel_num > 0){
+	
+		let t_old_dir = g_arr_wheel[t_wheel_num-1].wheelDeltaY > 0 ? 1 : -1;
+				
+		if(t_old_dir != t_dir){
+			//方向变了
+			console.log('方向变了-----');
+			g_arr_wheel = [];
+		}else{
+			for(let xe = t_wheel_num-1 ; xe>=0; xe--){
+			
+				let t_cur_wheel = g_arr_wheel[xe]; 
+				
+				let t_time = event.timeStamp - t_cur_wheel.timeStamp;
+								
+				if(t_time > 1000){
+					g_arr_wheel = g_arr_wheel.slice(xe+1);
+					break;
+				}
+			}
+		}
+	}
+		
+	g_arr_wheel.push(event);
+		 
+	t_wheel_num = g_arr_wheel.length;
+	
+	t_velocity = 0;
+		
+	for(let i=0; i<t_wheel_num; i++){
+		let t_delta_y = g_arr_wheel[i].wheelDeltaY;				
+		t_delta_y = Math.abs(t_delta_y) / 120;		 
+		t_velocity += t_delta_y;	
+	}
+	
+	
+	t_velocity = Math.pow(t_velocity, 1.6);
+	t_velocity = t_dir * t_velocity * 3; 
+	t_velocity = t_velocity.toFixed(2);
+	 	
+	let speedX = 0;
+	let speedY = t_velocity;
+	
+	function do_move(obj,speedX,speedY){
+        clearInterval(obj.timer);
+        obj.timer=setInterval(function(){
+            speedX*=0.95;   //摩擦系数
+            speedY*=0.95;   //摩擦系数
+		 
+            obj.style.left=obj.offsetLeft+speedX+'px';
+           
+            if(Math.abs(speedX)<1) speedX=0;
+            if(Math.abs(speedY)<1) speedY=0;
+			
+            if(speedX==0 && speedY==0){
+				console.log('停止定时器---');
+                clearInterval(obj.timer);   
+            }
+			
+			let t_top = obj.offsetTop+speedY;
+			if(t_top < 0){
+				t_top = 0;
+				speedY = 0;
+			}
+			 
+			obj.style.top = t_top+'px';
+			
+			var div_msg = document.getElementById('div_msg');
+	
+			let speedYstr = speedY.toFixed(0);
+			t_top = t_top.toFixed(0);
+			div_msg.innerHTML = '速度：'+speedYstr+' <br>距离：'+t_top;
+			 
+        },30);  
+    }
+	
+	do_move(oDiv,speedX,speedY);
+	
+}
+ 
+</script>
+</head>
+<body style='overflow:hidden'>
+ 
+<div id='div_msg'>滚一下试试</div>
+ 
+<div id="div_bar"> </div>
+</body>
+</html>

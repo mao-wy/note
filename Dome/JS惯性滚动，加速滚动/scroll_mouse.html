@@ -1,0 +1,81 @@
+
+<style>
+    #tag{
+        background: #eee;
+        cursor: move;
+        display: flex;overflow: hidden;
+    }
+    #tag div{
+        border: 20px solid #fff;
+        background: #dddddd;
+        width: 33.33%;
+        height: 200px;
+        flex: none;
+
+    }
+</style>
+<!-- 鼠标板 -->
+<div id="tag"></div>
+
+<script>
+    var html=""
+    var tag=document.getElementById('tag');
+    for(var i=0;i<100;i++){
+        html+="<div>"+i+"</div>";
+        // $("#tag").append("<div>"+i+"</div>");
+    }
+    tag.innerHTML=html;
+    
+    window.onload = function(){
+        var timer=null;//定时器
+        var movex=0;//左右移动距离
+		var oldClientX = 0 // 记录鼠标移动上次位置
+        var num=0;//onmousemove次数
+        var drag = document.getElementById('tag');
+        // //点击某物体时，用drag对象即可，onmousemove和onmouseup是全局区域，
+        // 也就是整个文档通用，应该使用document对象而不是drag对象(否则，采用drag对象时物体只能往右方或下方移动)
+        drag.onselectstart= function () {
+            return false;
+        }
+        drag.ondragstart = function () {
+            return false 
+        }
+        drag.onmousedown = function(event){
+            clearInterval(timer)
+            var event = event || window.event;  //兼容IE浏览器
+            var x=event.clientX;
+			oldClientX = event.clientX
+            document.onmousemove = function(event){
+				movex = 0
+                var event = event || window.event;
+                // movex= event.clientX-x;
+                movex= event.clientX-oldClientX;
+                console.log(num++,movex);
+                drag.scrollLeft-=movex
+				console.log(drag.scrollLeft);
+				
+				oldClientX = event.clientX
+            }
+            document.onmouseup = function(event){
+                this.onmousemove = null;
+                this.onmouseup = null;
+                // return
+                timer=setInterval(function () {
+                    movex=movex/1.05;
+                    // console.log(timer);
+                    // console.log(movex);
+                    if(Math.abs(movex)<2){
+                        clearInterval(timer)
+                    }
+                    drag.scrollLeft-=movex
+
+                },25)
+
+                //修复低版本ie bug
+                if(typeof drag.releaseCapture!='undefined'){
+                    drag.releaseCapture();
+                }
+            }
+        }
+    }
+</script>
