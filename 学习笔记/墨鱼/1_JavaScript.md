@@ -2,7 +2,9 @@
 
 ### [#](https://cchroot.github.io/interview/pages/interview notes/JS 基础知识点.html#_1、js-中存在-7-种原始类型)1、js 中存在 7 种原始类型
 
-boolean,null,undefined,number,string,symbol,bigint；typeof null 会输出 object,但是这只是 JS 存在的一个悠久 Bug
+boolean,null,undefined,number,string,symbol,bigint；
+
+typeof null 会输出 object,但是这只是 JS 存在的一个悠久 Bug
 
 ### [#](https://cchroot.github.io/interview/pages/interview notes/JS 基础知识点.html#_2、判断类型)2、判断类型
 
