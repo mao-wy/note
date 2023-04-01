@@ -198,31 +198,268 @@ Vue 3 中的 Tree-Shaking 可以在打包时自动生效，也可以通过手动
 
 
 
-1. 闭包 闭包是指有权访问另一个函数作用域中变量的函数。在JavaScript中，函数即是对象，因此可以在一个函数内定义另一个函数。闭包可以用来创建私有变量，以及实现一些高级的编程模式，比如函数式编程和模块化。
-2. 原型链 JavaScript中的每个对象都有一个指向它原型的链，这个链就是原型链。原型链的作用是实现对象之间的继承。当访问一个对象的属性时，如果对象本身没有这个属性，JavaScript就会沿着原型链向上查找，直到找到这个属性或者到达原型链的顶部（即Object.prototype）。
-3. 数据类型 在JavaScript中，数据类型分为原始类型和对象类型。原始类型包括Undefined、Null、Boolean、Number和String，对象类型包括Object、Array、Function等。
+1. 闭包 
+   闭包是指有权访问另一个函数作用域中变量的函数。在JavaScript中，函数即是对象，因此可以在一个函数内定义另一个函数。闭包可以用来创建私有变量，以及实现一些高级的编程模式，比如函数式编程和模块化。
+
+   ```js
+   function makeCounter() {
+     let count = 0;
+     function counter() {
+       count++;
+       console.log(count);
+     }
+     return counter;
+   }
+   let counter = makeCounter();
+   counter(); // 1
+   counter(); // 2
+   counter(); // 3
+   
+   ```
+
+   
+
+2. 原型链 
+   JavaScript中的每个对象都有一个指向它原型的链，这个链就是原型链。原型链的作用是实现对象之间的继承。当访问一个对象的属性时，如果对象本身没有这个属性，JavaScript就会沿着原型链向上查找，直到找到这个属性或者到达原型链的顶部（即Object.prototype）。
+
+   原型链是一种用于实现继承的机制，每个对象都有一个指向其原型的链接，如果在对象上访问一个属性或方法，而该对象没有定义该属性或方法，JavaScript 引擎会在原型链上递归查找，直到找到该属性或方法或者原型链的顶端为止。
+
+   可以使用对象的 __proto__ 属性或者 Object.getPrototypeOf() 方法访问对象的原型。
+
+   ```js
+   let obj = { foo: 1 };
+   let protoObj = { bar: 2 };
+   Object.setPrototypeOf(obj, protoObj);
+   console.log(obj.bar); // 2
+   
+   let obj2 = { baz: 3 };
+   Object.setPrototypeOf(obj2, obj);
+   console.log(obj2.bar); // 2
+   
+   ```
+
+   
+
+3. 数据类型 
+   在JavaScript中，数据类型分为原始类型和对象类型。原始类型包括Undefined、Null、Boolean、Number和String和 symbol（ES6 新增），对象类型包括Object、Array、Function等。其中前 6 种数据类型为基本数据类型，object 为引用数据类型。可以使用 `typeof` 运算符判断变量的数据类型，但需要注意的是，`typeof null` 的返回值是 `'object'`，这是一个历史遗留问题。引用类型有对象、数组、函数等。其中原始类型存储在栈内存中，引用类型存储在堆内存中，变量存储的是对象在堆内存中的地址。
+
+   ```
+   let a;
+   console.log(typeof a); // 'undefined'
+   
+   a = null;
+   console.log(typeof a); // 'object' (历史遗留问题)
+   
+   a = true;
+   console.log(typeof a); // 'boolean'
+   
+   a = 123;
+   console.log(typeof a); // 'number'
+   
+   a = 'hello';
+   console.log(typeof a); // 'string'
+   
+   a = Symbol('foo');
+   console.log(typeof a); // 'symbol'
+   
+   a = {};
+   console.log(typeof a); // 'object'
+   
+   ```
+
+   
+
 4. 冒泡排序 冒泡排序是一种简单的排序算法，它重复地遍历要排序的数组，比较相邻的两个元素，如果它们的顺序错误就交换它们，直到数组已经排序完成。
+
+   ```js
+   function bubbleSort(arr) {
+     let len = arr.length;
+     for (let i = 0; i < len - 1; i++) {
+       for (let j = 0; j < len - 1 - i; j++) {
+         if (arr[j] > arr[j + 1]) {
+           [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+         }
+       }
+     }
+     return arr;
+   }
+   
+   // 测试代码
+   const arr = [5, 3, 8, 4, 1, 9];
+   console.log(bubbleSort(arr)); // [1, 3, 4, 5, 8, 9]
+   ```
+
+   
+
 5. 递归算法 递归是指在函数中调用函数本身的一种技巧。递归算法常用于解决一些需要重复执行同一任务的问题，比如树的遍历、阶乘计算等。
-6. 数组排序 JavaScript中可以使用sort()方法对数组进行排序。sort()方法会按照Unicode编码对数组元素进行排序，如果需要按照其他标准进行排序，可以传入一个比较函数作为参数。
-7. 浅拷贝深拷贝 浅拷贝是指只复制对象或数组的引用，而不是复制对象或数组本身。深拷贝是指创建一个新的对象或数组，并将原对象或数组的所有属性或元素递归地复制到新对象或数组中。在JavaScript中，可以使用Object.assign()方法或者使用JSON.parse(JSON.stringify())方法进行浅拷贝或深拷贝。
+   ```js
+   function factorial(n) {
+     if (n === 0) {
+       return 1; // 基本情况：0! = 1
+     } else {
+       return n * factorial(n - 1); // 递归情况：n! = n * (n - 1)!
+     }
+   }
+   
+   // 测试代码
+   console.log(factorial(5)); // 120
+   // 尾递归
+   function factorial(n, result = 1) {
+     if (n === 0) {
+       return result;
+     } else {
+       return factorial(n - 1, n * result);
+     }
+   }
+   
+   ```
+
+   
+
+6. 数组排序 
+
+   JavaScript中可以使用sort()方法对数组进行排序。sort()方法会按照Unicode编码对数组元素进行排序，如果需要按照其他标准进行排序，可以传入一个比较函数作为参数。
+
+7. 浅拷贝深拷贝 
+
+   浅拷贝是指只复制对象或数组的引用，而不是复制对象或数组本身。深拷贝是指创建一个新的对象或数组，并将原对象或数组的所有属性或元素递归地复制到新对象或数组中。在JavaScript中，可以使用Object.assign()方法或者使用JSON.parse(JSON.stringify())方法进行浅拷贝或深拷贝。
+
 8. this 的指向 在JavaScript中，this关键字指向当前执行代码的上下文对象。如果当前代码是在函数中执行，this就指向该函数所属的对象。如果当前代码是在全局作用域中执行，this就指向全局对象。
+
 9. 继承 JavaScript中的继承可以通过原型链实现。子类通过继承父类的原型对象来继承父类的属性和方法。ES6引入了class语法，可以更方便地实现继承。
+
 10. H5/C3/ES6 H5指HTML5，是HTML的最新版本，提供了更多的新特性和API，比如Canvas、Web Worker等。CSS3是CSS的最新版本，增加了很多新的特性和选择器，比如border-radius、box-shadow等。ES6是JavaScript的最新版本，引入了很多新的语法和特性，比如箭头函数、模板字符串、解构赋值等。
+
 11. 跨域解决 跨域是指浏览器限制了页面从一个源加载另一个源的资源。跨域解决可以通过修改服务器响应头来实现，比如设置Access-Control-Allow-Origin。
+
 12. 性能优化 性能优化是指提高程序运行效率和响应速度的一系列技术。在前端开发中，可以通过减少HTTP请求、使用CDN、压缩文件、使用缓存等方法来优化性能。
+
 13. Less/Sass用法和编译 Less和Sass是两种CSS预处理器，它们提供了更强大的CSS编写方式和一些便利的功能，比如变量、嵌套、函数等。在使用Less或Sass时，需要将它们编译成普通的CSS文件才能在浏览器中使用。
+
 14. 兼容性解决 在开发过程中，需要考虑不同浏览器对于CSS和JavaScript的支持情况。可以使用CSS Reset、Modernizr等工具来解决兼容性问题。
+
 15. rem原理、移动端适配 rem是一种相对于根元素（即html元素）字体大小的单位，可以根据不同设备的屏幕大小动态调整字体大小。在移动端适配中，可以使用rem单位来实现自适应布局，根据屏幕大小动态设置根元素的字体大小，从而实现页面元素的缩放。
+
 16. 常见的状态码 HTTP状态码是指当客户端向服务器发送请求时，服务器返回的HTTP响应中包含的状态码。常见的状态码包括200（请求成功）、404（请求的资源不存在）、500（服务器内部错误）等。
+
 17. git冲突怎么解决 当多个开发者在同一个文件上进行修改并提交时，可能会导致冲突。解决冲突可以使用git的合并功能，通过手动解决冲突并提交修改来解决。
+
 18. 遍历数组/对象、for in遍历对象时会不会访问原型、判断是不是原型的方法 可以使用for循环、forEach、map等方法遍历数组。遍历对象时，可以使用for-in循环来遍历对象的所有属性，包括继承的属性。可以使用hasOwnProperty()方法来判断属性是否是对象本身的属性，而不是继承的属性。
-19. 事件循环机制 JavaScript是单线程的，但是它支持异步编程。异步编程的实现依靠事件循环机制。当JavaScript执行异步任务时，会将任务放入任务队列中，等待主线程空闲时再执行。事件循环机制就是负责管理任务队列和主线程的调度过程，保证异步任务能够按照正确的顺序执行。
-21. 输入URL到页面展示的详细过程 输入URL后，浏览器会先将URL解析成协议、主机、端口、路径等信息，然后发起HTTP请求。服务器接收到请求后，会根据路径等信息返回对应的资源文件。浏览器接收到响应后，会进行页面解析、布局、渲染等过程，最终将页面展示在浏览器窗口中。
-22. 怎么打断点 在调试JavaScript代码时，可以使用断点来暂停程序的执行，以便查看程序状态和调试代码。在Chrome浏览器中，可以在Sources面板中选择要打断点的代码行，然后点击行号左侧的区域添加断点。
-23. HTTP缓存 HTTP缓存是指在浏览器缓存中存储资源文件，以便下次访问时可以直接从缓存中获取，而不需要重新请求服务器。可以通过设置响应头中的Cache-Control和Expires字段来控制缓存的行为。
-24. XSS攻击和CSRF攻击的区别 XSS攻击是指攻击者通过在网页中注入恶意脚本，以获取用户信息或者攻击用户设备的一种攻击方式。CSRF攻击是指攻击者通过伪造请求，以冒充合法用户的身份执行一些操作的一种攻击方式。两种攻击方式的本质区别在于，XSS攻击是通过注入脚本实现的，而CSRF攻击是通过伪造请求实现的。
-25. for in遍历 for-in循环是用于遍历对象属性的一种循环方式，语法为：for(variable in object) {...}。在循环中，变量variable代表对象的属性名，object代表要遍历的对象。需要注意的是，for-in循环会遍历对象的所有属性，包括继承的属性。可以使用hasOwnProperty()方法来判断属性是否是对象本身的属性，而不是继承的属性。
-26. 生命周期 在Vue框架中，生命周期指的是组件在创建、更新、销毁等过程中所经历的各个阶段。在Vue中，组件的生命周期可以分为8个阶段，分别是：
+
+    怎么遍历数组/对象？
+
+    JavaScript 中遍历数组和对象的常用方法有：
+
+    for 循环：可以通过数组的 length 属性或对象的 Object.keys() 方法获取数组或对象的长度或键值，然后循环遍历数组或对象，使用索引或键值获取每个元素或属性值。
+    forEach 方法：数组的 forEach() 方法可以遍历数组的每个元素，不需要显式地指定索引，可以使用回调函数处理每个元素。
+    for...in 循环：可以遍历对象的每个可枚举属性，包括原型链上的属性，但不推荐用来遍历数组。
+    Object.keys 方法：返回一个由对象的所有可枚举属性组成的数组，不包括原型链上的属性。
+    Object.values 方法：返回一个由对象的所有可枚举属性值组成的数组，不包括原型链上的属性。
+    Object.entries 方法：返回一个由对象的所有可枚举属性键值对组成的二维数组，不包括原型链上的属性。
+    下面是遍历数组和对象的示例代码：
+
+    ```js
+    // 遍历数组
+    let arr = [1, 2, 3];
+    for (let i = 0; i < arr.length; i++) {
+      console.log(arr[i]);
+    }
+    
+    arr.forEach((item) => {
+      console.log(item);
+    });
+    
+    // 遍历对象
+    let obj = { name: 'Alice', age: 20 };
+    for (let key in obj) {
+      console.log(`${key}: ${obj[key]}`);
+    }
+    
+    Object.keys(obj).forEach((key) => {
+      console.log(`${key}: ${obj[key]}`);
+    });
+    
+    Object.values(obj).forEach((value) => {
+      console.log(value);
+    });
+    
+    Object.entries(obj).forEach(([key, value]) => {
+      console.log(`${key}: ${value}`);
+    });
+    
+    ```
+
+    
+
+    **for...in 遍历对象时会不会访问原型？**
+
+    `for...in` 循环会遍历对象的所有可枚举属性，包括原型链上的属性。如果要遍历对象自身的属性，可以使用 `Object.keys()` 或 `Object.getOwnPropertyNames()` 方法获取对象的所有属性名，然后遍历属性名数组。
+    下面是示例代码：
+
+    ```js
+    let obj = { name: 'Alice', age: 20 };
+    Object.prototype.gender = 'female';
+    
+    // 使用 for...in 遍历对象
+    for (let key in obj) {
+      console.log(`${key}: ${obj[key]}`);
+    }
+    // 输出：name: Alice, age: 20, gender: female
+    
+    // 使用 Object.keys() 获取对象自身的属性名，遍历属性名数组
+    Object.keys(obj).forEach((key) => {
+      console.log(`${key}: ${obj[key]}`);
+    });
+    // 输出：name: Alice, age: 20
+    
+    ```
+
+    **判断是不是原型的方法？**
+
+    可以使用 `Object.getPrototypeOf()` 方法获取对象的原型，然后与期望的原型进行比较，判断对象是否为期望原型的实例。如果期望原型是某个构造函数的原
+
+19. 事件循环机制
+     JavaScript是单线程的，但是它支持异步编程。异步编程的实现依靠事件循环机制。当JavaScript执行异步任务时，会将任务放入任务队列中，等待主线程空闲时再执行。事件循环机制就是负责管理任务队列和主线程的调度过程，保证异步任务能够按照正确的顺序执行。
+    事件循环是 JavaScript 引擎中的一种机制，它负责协调和管理 JavaScript 运行时的所有任务。JavaScript 是单线程执行的，但可以通过事件循环来模拟并发执行。当 JavaScript 引擎启动时，会创建一个主线程和一个调用栈，调用栈用于记录当前执行的函数，主线程用于执行代码和处理事件。事件循环则用于管理异步任务的执行。
+
+    事件循环由以下几个部分组成：
+
+    - 调用栈：用于记录当前正在执行的函数，遵循后进先出的原则；
+    - 任务队列：用于存储异步任务的回调函数，分为宏任务队列和微任务队列；
+    - 微任务：在任务队列中优先级较高的任务，例如 Promise、process.nextTick；
+    - 宏任务：在任务队列中优先级较低的任务，例如 setTimeout、setInterval、setImmediate、requestAnimationFrame、I/O 操作等；
+    - Event Loop：用于监听调用栈和任务队列的变化，当调用栈为空时，从任务队列中取出任务进行执行。
+
+    事件循环的运行过程可以用以下伪代码描述：
+    ```js
+    while (true) {
+      if (call stack is empty) {
+        if (microtask queue is not empty) {
+          execute all microtasks in the queue
+        } else if (macrotask queue is not empty) {
+          execute the oldest macrotask in the queue
+        } else {
+          exit the loop
+        }
+      }
+    }
+    
+    ```
+
+    
+
+20. 输入URL到页面展示的详细过程 
+    输入URL后，浏览器会先将URL解析成协议、主机、端口、路径等信息，然后发起HTTP请求。服务器接收到请求后，会根据路径等信息返回对应的资源文件。浏览器接收到响应后，会进行页面解析、布局、渲染等过程，最终将页面展示在浏览器窗口中。
+
+21. 怎么打断点 在调试JavaScript代码时，可以使用断点来暂停程序的执行，以便查看程序状态和调试代码。在Chrome浏览器中，可以在Sources面板中选择要打断点的代码行，然后点击行号左侧的区域添加断点。
+
+22. HTTP缓存 HTTP缓存是指在浏览器缓存中存储资源文件，以便下次访问时可以直接从缓存中获取，而不需要重新请求服务器。可以通过设置响应头中的Cache-Control和Expires字段来控制缓存的行为。
+
+23. XSS攻击和CSRF攻击的区别 XSS攻击是指攻击者通过在网页中注入恶意脚本，以获取用户信息或者攻击用户设备的一种攻击方式。CSRF攻击是指攻击者通过伪造请求，以冒充合法用户的身份执行一些操作的一种攻击方式。两种攻击方式的本质区别在于，XSS攻击是通过注入脚本实现的，而CSRF攻击是通过伪造请求实现的。
+
+24. for in遍历 for-in循环是用于遍历对象属性的一种循环方式，语法为：for(variable in object) {...}。在循环中，变量variable代表对象的属性名，object代表要遍历的对象。需要注意的是，for-in循环会遍历对象的所有属性，包括继承的属性。可以使用hasOwnProperty()方法来判断属性是否是对象本身的属性，而不是继承的属性。
+
+25. 生命周期 在Vue框架中，生命周期指的是组件在创建、更新、销毁等过程中所经历的各个阶段。在Vue中，组件的生命周期可以分为8个阶段，分别是：
 
 - beforeCreate：`beforeCreate`：在组件实例被创建之初，初始化数据之前被调用，此时组件的`data`、`methods`等属性还未被初始化。
 
@@ -263,12 +500,17 @@ Vue 3 中的 Tree-Shaking 可以在打包时自动生效，也可以通过手动
 
     计算属性和监听属性都有各自的优缺点，在使用时需要根据实际情况进行选择。如果需要根据已有的数据计算出新的数据，而且这个计算过程比较复杂或者计算量比较大，那么就应该使用计算属性。如果需要监听某个数据的变化，并在数据变化时执行一些操作，那么就应该使用监听属性。
 
-28. Vuex Vuex是一个专为Vue.js应用程序开发的状态管理模式。它集中管理应用程序的状态，并提供了一些工具和规则来保证状态的可维护性。Vuex主要包含了以下几个核心概念：
+28. Vuex 
+    Vuex是一个专为Vue.js应用程序开发的状态管理模式。它集中管理应用程序的状态，并提供了一些工具和规则来保证状态的可维护性。Vuex主要包含了以下几个核心概念：
 
 - state：单一状态树，用于存储应用程序的所有状态。存储应用中的所有状态，是唯一的数据源，所有组件共享这些数据。
+
 - mutation：用于修改状态的函数，只能进行同步操作。用于修改State中的状态，是Vuex中唯一允许修改State的方式，且只能通过提交Mutation来修改State。
+
 - action：用于触发mutation并进行异步操作。用于处理异步操作和复杂的业务逻辑，可以提交Mutation来修改State。
+
 - getter：类似于计算属性，用于从state中派生出一些状态。类似于Vue的计算属性，用于从State中派生出一些状态，以供组件使用。
+
 - Modules：用于将大型的State拆分成小的模块，方便管理和维护。
 
   通过Vuex，我们可以更方便地管理应用的状态，减少组件之间的耦合度，避免了数据在组件之间的传递和维护上的问题。但是，Vuex的使用也有一些注意事项：
@@ -277,18 +519,36 @@ Vue 3 中的 Tree-Shaking 可以在打包时自动生效，也可以通过手动
   2. 修改State的唯一方式是提交Mutation，Mutation是同步的操作，如果需要异步操作或复杂的业务逻辑，应该使用Action。
   3. Getter和Action都可以接收State作为参数，并可以根据State计算出新的值或执行某些操作，但是Getter只能读取State，而Action可以修改State。
   4. 使用Vuex时需要注意模块化管理，将大型的State拆分成小的模块，避免出现代码耦合和维护上的问题。
+  
+  Vuex的主要特点包括：
+  
+  - 集中式存储：状态集中存储在一个store对象中，方便管理和修改。
+  - 明确的状态流：通过mutations和actions明确状态的修改流程。
+  - 单向数据流：保证了应用状态的一致性和可维护性。
+  - 可以通过插件机制扩展功能。
 
 29. 数据双向绑定原理 Vue框架的数据双向绑定是基于ES5的Object.defineProperty()方法和观察者模式实现的。当Vue实例化时，会将data对象中的每个属性都转换为getter和setter方法。当数据发生变化时，会触发setter方法更新视图。而当视图发生变化时，会通过观察者模式通知相关的数据更新。
 
     具体而言，Vue框架将模板解析为AST（抽象语法树），并将其转换为渲染函数，然后使用render函数生成虚拟DOM。当数据发生变化时，Vue会重新生成虚拟DOM，并通过比较新旧虚拟DOM来确定需要更新的DOM节点。这样，数据和视图就可以实现双向绑定。
+    Vue中的数据双向绑定是通过MVVM模式实现的。MVVM是Model-View-ViewModel的缩写，是一种UI设计模式，用于将UI层和业务逻辑层分离，从而实现UI和数据的解耦。在Vue中，数据双向绑定的原理可以简单地概括为：
 
-30. v-show和v-if的区别 v-show和v-if都可以用于根据条件控制DOM元素的显示和隐藏，但它们的实现方式不同。
+    1. Vue通过劫持数据的setter和getter方法来实现数据的监听和响应式更新。
+    2. 在模板中使用指令和表达式来绑定数据和视图，当数据发生变化时，Vue会自动更新视图。
+    3. 在用户与视图交互时，Vue通过事件绑定和双向绑定指令来将视图中的变化同步到数据中，从而实现数据的双向绑定。
+
+    通过数据双向绑定，我们可以更方便地处理UI和数据之间的关系，减少了编写DOM操作的代码量，提高了代码的可维护性和可读性。
+
+30. #### v-show和v-if的区别 
+    
+    v-show和v-if都可以用于根据条件控制DOM元素的显示和隐藏，但它们的实现方式不同。
     v-show是通过CSS样式的display属性来控制DOM元素的显示和隐藏。当条件为true时，元素的display属性会被设置为block，否则会被设置为none。这样，元素在DOM中仍然存在，只是不会显示出来。
     v-if则是根据条件动态添加或移除DOM元素。当条件为true时，元素会被添加到DOM中，否则会被移除。这样，元素在DOM中存在与否取决于条件是否满足。
     因此，v-show适合用于频繁切换显示状态的元素，而v-if则适合用于一次性渲染的元素。
-31. keep-alive keep-alive是Vue框架中的一个高阶组件，可以缓存组件的状态或避免重新渲染。当组件被包裹在keep-alive标签中时，该组件的状态会被缓存，而不是被销毁。当组件再次被访问时，它会从缓存中获取状态，而不是重新渲染。这样，可以提高组件的性能和用户体验。
-32. nextTick nextTick是Vue框架中的一个异步方法，用于在DOM更新之后执行一些操作。当数据发生变化时，Vue会异步执行DOM更新操作，而nextTick则可以在DOM更新之后执行一些回调函数。这样，可以保证回调函数在DOM更新完成之后执行，避免一些由于DOM更新导致的问题。例如，在某些情况下，使用nextTick可以确保获取到正确的DOM元素尺寸。
-33. 输入URL到页面展示的详细过程 在浏览器中输入URL并按下回车键后，浏览器会进行如下操作：
+31. keep-alive keep-alive是Vue框架中的一个高阶组件，可以缓存组件的状态或避免重新渲染。当组件被包裹在keep-alive标签中时，该组件的状态会被缓存，而不是被销毁。当组件再次被访问时，它会从缓存中获取状态，而不是重新渲染,避免了重复创建和销毁组件的开销。这样，可以提高组件的性能和用户体验。
+32. nextTick 
+    nextTick是Vue框架中的一个异步方法，用于在DOM更新之后执行一些操作。当数据发生变化时，Vue会异步执行DOM更新操作，而nextTick则可以在DOM更新之后执行一些回调函数。这样，可以保证回调函数在DOM更新完成之后执行，避免一些由于DOM更新导致的问题。例如，在某些情况下，使用nextTick可以确保获取到正确的DOM元素尺寸。
+33. 输入URL到页面展示的详细过程 
+    在浏览器中输入URL并按下回车键后，浏览器会进行如下操作：
 
 - DNS解析：浏览器会向DNS服务器发送一个DNS解析请求，获取目标服务器的IP地址。
 - 建立TCP连接：浏览器会向目标服务器发送一个TCP连接请求，并建立TCP连接。
